@@ -1,7 +1,7 @@
-import { signalStore, withState } from '@ngrx/signals';
-import { ReadMeBlock } from '../../../shared/models/project.interface';
+import { patchState, signalStore, withMethods, withState } from '@ngrx/signals';
+import { BlockType, ReadMeBlock } from '../../../shared/models/project.interface';
 
-interface BuilderState {
+export interface BuilderState {
   projectId: string | null;
   title: string;
   blocks: ReadMeBlock[];
@@ -15,4 +15,21 @@ const initialState: BuilderState = {
   isLoading: false,
 };
 
-export const BuilderStore = signalStore({ providedIn: 'root' }, withState(initialState));
+export const BuilderStore = signalStore(
+  { providedIn: 'root' },
+  withState(initialState),
+
+  withMethods((store) => ({
+    addBlock(type: BlockType) {
+      const newBlock: ReadMeBlock = {
+        id: crypto.randomUUID(),
+        type,
+        data: {},
+      };
+
+      patchState(store, (state) => ({
+        blocks: [...state.blocks, newBlock],
+      }));
+    },
+  })),
+);
