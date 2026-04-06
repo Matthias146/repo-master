@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -8,6 +8,10 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { MarkdownModule } from 'ngx-markdown';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { toast } from '@spartan-ng/brain/sonner';
 
 export interface ReadmeBlock {
   id: string;
@@ -17,11 +21,20 @@ export interface ReadmeBlock {
 
 @Component({
   selector: 'app-workspace',
-  imports: [CdkDropList, CdkDrag, CdkDropListGroup, MarkdownModule],
+  imports: [
+    CdkDropList,
+    CdkDrag,
+    CdkDropListGroup,
+    MarkdownModule,
+    ReactiveFormsModule,
+    HlmButtonImports,
+  ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
 })
 export class Workspace {
+  copied = false;
+  private cdr = inject(ChangeDetectorRef);
   availableBlocks: ReadmeBlock[] = [
     {
       id: 'header',
@@ -48,6 +61,17 @@ export class Workspace {
   ];
 
   selectedBlocks: ReadmeBlock[] = [];
+  activeBlock: ReadmeBlock | null = null;
+
+  markdownControl = new FormControl<string>('', { nonNullable: true });
+
+  constructor() {
+    this.markdownControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
+      if (this.activeBlock) {
+        this.activeBlock.markdown = newValue;
+      }
+    });
+  }
 
   get generatedMarkdown(): string {
     if (this.selectedBlocks.length === 0) {
@@ -66,6 +90,42 @@ export class Workspace {
         event.previousIndex,
         event.currentIndex,
       );
+    }
+  }
+
+  selectBlock(block: ReadmeBlock) {
+    this.activeBlock = block;
+    this.markdownControl.setValue(block.markdown, { emitEvent: false });
+  }
+
+  async copyToClipboard() {
+    if (this.selectedBlocks.length === 0) return;
+
+    try {
+      await navigator.clipboard.writeText(this.generatedMarkdown);
+
+      this.copied = true;
+
+      this.cdr.detectChanges();
+
+      toast.success('In die Zwischenablage kopiert', {
+        description: 'Dein Markdown-Code ist nun bereit zum Einfügen.',
+        position: 'bottom-right',
+        duration: 2000,
+      });
+
+      setTimeout(() => {
+        this.copied = false;
+        this.cdr.detectChanges();
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+
+      toast.error('Fehler beim Kopieren', {
+        description: 'Es gab ein Problem mit der Zwischenablage.',
+        position: 'bottom-right',
+        duration: 2000,
+      });
     }
   }
 }

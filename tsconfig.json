@@ -13,8 +13,15 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@spartan-ng/helm/button": ["./src/app/shared/components/ui/button/src/index.ts"],
-      "@spartan-ng/helm/utils": ["./src/app/shared/components/ui/utils/src/index.ts"]
+      "@spartan-ng/helm/button": [
+        "./src/app/shared/components/ui/button/src/index.ts"
+      ],
+      "@spartan-ng/helm/utils": [
+        "./src/app/shared/components/ui/utils/src/index.ts"
+      ],
+      "@spartan-ng/helm/sonner": [
+        "./src/app/shared/components/ui/sonner/src/index.ts"
+      ]
     }
   },
   "angularCompilerOptions": {

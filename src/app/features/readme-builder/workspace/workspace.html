@@ -30,7 +30,9 @@
       cdkDropList
       [cdkDropListData]="selectedBlocks"
       (cdkDropListDropped)="drop($event)"
-      class="flex flex-1 flex-col gap-2 rounded-lg border-2 border-dashed border-muted bg-muted/10 p-4 overflow-y-auto"
+      class="flex flex-col gap-2 rounded-lg border-2 border-dashed border-muted bg-muted/10 p-4 overflow-y-auto"
+      [class.flex-1]="!activeBlock"
+      [class.h-1/2]="activeBlock"
     >
       @if (selectedBlocks.length === 0) {
         <p class="mt-10 text-center text-sm text-muted-foreground pointer-events-none">
@@ -41,17 +43,96 @@
       @for (block of selectedBlocks; track block) {
         <div
           cdkDrag
-          class="cursor-grab rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-medium text-primary shadow-sm active:cursor-grabbing"
+          role="button"
+          tabindex="0"
+          (click)="selectBlock(block)"
+          (keydown.enter)="selectBlock(block)"
+          [class.ring-2]="activeBlock === block"
+          [class.ring-primary]="activeBlock === block"
+          class="cursor-pointer rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-medium text-primary shadow-sm hover:bg-primary/20 active:cursor-grabbing"
         >
           {{ block.name }}
         </div>
       }
     </div>
+
+    @if (activeBlock) {
+      <div class="mt-4 flex flex-1 flex-col gap-2 rounded-lg border bg-muted/20 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold text-muted-foreground"
+            >Bearbeite: {{ activeBlock.name }}</span
+          >
+          <button
+            (click)="activeBlock = null"
+            class="text-xs text-muted-foreground hover:text-foreground"
+          >
+            Schließen
+          </button>
+        </div>
+
+        <textarea
+          [formControl]="markdownControl"
+          class="flex-1 w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-mono"
+          placeholder="Markdown Code hier eingeben..."
+        ></textarea>
+      </div>
+    }
   </section>
 
-  <section class="col-span-5 rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
-    <h2 class="mb-4 text-lg font-semibold tracking-tight">Live Vorschau</h2>
-    <div class="h-full rounded-lg bg-muted/20 p-4 font-mono text-sm">
+  <section
+    class="col-span-5 rounded-xl border bg-card p-4 text-card-foreground shadow-sm flex flex-col relative"
+  >
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-semibold tracking-tight">Live Vorschau</h2>
+
+      <button
+        hlmBtn
+        variant="outline"
+        size="sm"
+        (click)="copyToClipboard()"
+        [class.border-green-500]="copied"
+        [class.text-green-500]="copied"
+        [disabled]="selectedBlocks.length === 0"
+        class="gap-1.5 transition-all"
+      >
+        @if (copied) {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4 text-green-500"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+          Kopiert!
+        } @else {
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-4 w-4"
+          >
+            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+          </svg>
+          Markdown Kopieren
+        }
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto rounded-lg bg-muted/20 p-6 pr-3">
       <markdown [data]="generatedMarkdown" class="prose prose-sm dark:prose-invert max-w-none">
       </markdown>
     </div>
