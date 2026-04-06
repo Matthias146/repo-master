@@ -7,6 +7,7 @@ import {
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
+import { MarkdownModule } from 'ngx-markdown';
 
 export interface ReadmeBlock {
   id: string;
@@ -16,7 +17,7 @@ export interface ReadmeBlock {
 
 @Component({
   selector: 'app-workspace',
-  imports: [CdkDropList, CdkDrag, CdkDropListGroup],
+  imports: [CdkDropList, CdkDrag, CdkDropListGroup, MarkdownModule],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
 })

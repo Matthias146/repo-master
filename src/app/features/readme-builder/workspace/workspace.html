@@ -52,7 +52,8 @@
   <section class="col-span-5 rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Live Vorschau</h2>
     <div class="h-full rounded-lg bg-muted/20 p-4 font-mono text-sm">
-      <p class="text-muted-foreground">{{ generatedMarkdown }}</p>
+      <markdown [data]="generatedMarkdown" class="prose prose-sm dark:prose-invert max-w-none">
+      </markdown>
     </div>
   </section>
 </div>
