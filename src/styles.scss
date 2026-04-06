@@ -1,6 +1,6 @@
 @use "tailwindcss";
-
 @use "@spartan-ng/brain/hlm-tailwind-preset.css";
+@plugin "@tailwindcss/typography";
 
 @layer theme, base, components, utilities;
 
