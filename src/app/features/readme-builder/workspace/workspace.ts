@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -11,6 +11,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { toast } from '@spartan-ng/brain/sonner';
 
 export interface ReadmeBlock {
   id: string;
@@ -33,6 +34,7 @@ export interface ReadmeBlock {
 })
 export class Workspace {
   copied = false;
+  private cdr = inject(ChangeDetectorRef);
   availableBlocks: ReadmeBlock[] = [
     {
       id: 'header',
@@ -104,9 +106,26 @@ export class Workspace {
 
       this.copied = true;
 
-      setTimeout(() => (this.copied = false), 2000);
+      this.cdr.detectChanges();
+
+      toast.success('In die Zwischenablage kopiert', {
+        description: 'Dein Markdown-Code ist nun bereit zum Einfügen.',
+        position: 'bottom-right',
+        duration: 2000,
+      });
+
+      setTimeout(() => {
+        this.copied = false;
+        this.cdr.detectChanges();
+      }, 2000);
     } catch (err) {
-      console.error('Fehler beim Kopieren:', err);
+      console.log(err);
+
+      toast.error('Fehler beim Kopieren', {
+        description: 'Es gab ein Problem mit der Zwischenablage.',
+        position: 'bottom-right',
+        duration: 2000,
+      });
     }
   }
 }
