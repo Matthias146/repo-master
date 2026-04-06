@@ -8,6 +8,8 @@ import {
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { MarkdownModule } from 'ngx-markdown';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 export interface ReadmeBlock {
   id: string;
@@ -17,7 +19,7 @@ export interface ReadmeBlock {
 
 @Component({
   selector: 'app-workspace',
-  imports: [CdkDropList, CdkDrag, CdkDropListGroup, MarkdownModule],
+  imports: [CdkDropList, CdkDrag, CdkDropListGroup, MarkdownModule, ReactiveFormsModule],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
 })
@@ -48,6 +50,17 @@ export class Workspace {
   ];
 
   selectedBlocks: ReadmeBlock[] = [];
+  activeBlock: ReadmeBlock | null = null;
+
+  markdownControl = new FormControl<string>('', { nonNullable: true });
+
+  constructor() {
+    this.markdownControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
+      if (this.activeBlock) {
+        this.activeBlock.markdown = newValue;
+      }
+    });
+  }
 
   get generatedMarkdown(): string {
     if (this.selectedBlocks.length === 0) {
@@ -67,5 +80,10 @@ export class Workspace {
         event.currentIndex,
       );
     }
+  }
+
+  selectBlock(block: ReadmeBlock) {
+    this.activeBlock = block;
+    this.markdownControl.setValue(block.markdown, { emitEvent: false });
   }
 }
