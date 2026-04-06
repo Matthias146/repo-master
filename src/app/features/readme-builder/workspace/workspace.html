@@ -1,28 +1,58 @@
-<div class="grid h-screen w-full grid-cols-12 gap-4 p-4">
-  <aside class="col-span-3 rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
+<div class="grid h-screen w-full grid-cols-12 gap-4 p-4" cdkDropListGroup>
+  <aside
+    class="col-span-3 flex flex-col rounded-xl border bg-card p-4 text-card-foreground shadow-sm"
+  >
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Bausteine</h2>
-    <p class="text-sm text-muted-foreground">
-      Hier landen später die Draggable-Komponenten (Header, Features, Installation).
-    </p>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="availableBlocks"
+      (cdkDropListDropped)="drop($event)"
+      class="flex flex-1 flex-col gap-2 overflow-y-auto"
+    >
+      @for (block of availableBlocks; track block) {
+        <div
+          cdkDrag
+          class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing"
+        >
+          {{ block }}
+        </div>
+      }
+    </div>
   </aside>
 
   <section
     class="col-span-4 flex flex-col rounded-xl border bg-card p-4 text-card-foreground shadow-sm"
   >
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Editor</h2>
-    <div class="flex-1 rounded-lg border-2 border-dashed border-muted bg-muted/10 p-4">
-      <p class="text-center text-sm text-muted-foreground mt-10">
-        Drop-Zone für deine ReadMe-Struktur
-      </p>
+
+    <div
+      cdkDropList
+      [cdkDropListData]="selectedBlocks"
+      (cdkDropListDropped)="drop($event)"
+      class="flex flex-1 flex-col gap-2 rounded-lg border-2 border-dashed border-muted bg-muted/10 p-4 overflow-y-auto"
+    >
+      @if (selectedBlocks.length === 0) {
+        <p class="mt-10 text-center text-sm text-muted-foreground pointer-events-none">
+          Zieh deine Bausteine hierhin
+        </p>
+      }
+
+      @for (block of selectedBlocks; track block) {
+        <div
+          cdkDrag
+          class="cursor-grab rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-medium text-primary shadow-sm active:cursor-grabbing"
+        >
+          {{ block }}
+        </div>
+      }
     </div>
   </section>
 
   <section class="col-span-5 rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Live Vorschau</h2>
     <div class="h-full rounded-lg bg-muted/20 p-4 font-mono text-sm">
-      <p class="text-muted-foreground"># Project Title</p>
-      <br />
-      <p class="text-muted-foreground">Live-Rendering des Markdown-Codes...</p>
+      <p class="text-muted-foreground">Vorschau generiert sich später dynamisch...</p>
     </div>
   </section>
 </div>
