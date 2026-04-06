@@ -10,6 +10,7 @@ import {
 import { MarkdownModule } from 'ngx-markdown';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
 
 export interface ReadmeBlock {
   id: string;
@@ -19,11 +20,19 @@ export interface ReadmeBlock {
 
 @Component({
   selector: 'app-workspace',
-  imports: [CdkDropList, CdkDrag, CdkDropListGroup, MarkdownModule, ReactiveFormsModule],
+  imports: [
+    CdkDropList,
+    CdkDrag,
+    CdkDropListGroup,
+    MarkdownModule,
+    ReactiveFormsModule,
+    HlmButtonImports,
+  ],
   templateUrl: './workspace.html',
   styleUrl: './workspace.scss',
 })
 export class Workspace {
+  copied = false;
   availableBlocks: ReadmeBlock[] = [
     {
       id: 'header',
@@ -85,5 +94,19 @@ export class Workspace {
   selectBlock(block: ReadmeBlock) {
     this.activeBlock = block;
     this.markdownControl.setValue(block.markdown, { emitEvent: false });
+  }
+
+  async copyToClipboard() {
+    if (this.selectedBlocks.length === 0) return;
+
+    try {
+      await navigator.clipboard.writeText(this.generatedMarkdown);
+
+      this.copied = true;
+
+      setTimeout(() => (this.copied = false), 2000);
+    } catch (err) {
+      console.error('Fehler beim Kopieren:', err);
+    }
   }
 }
