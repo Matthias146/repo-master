@@ -15,7 +15,7 @@
           cdkDrag
           class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing"
         >
-          {{ block }}
+          {{ block.name }}
         </div>
       }
     </div>
@@ -43,7 +43,7 @@
           cdkDrag
           class="cursor-grab rounded-md border border-primary/20 bg-primary/10 p-3 text-sm font-medium text-primary shadow-sm active:cursor-grabbing"
         >
-          {{ block }}
+          {{ block.name }}
         </div>
       }
     </div>
@@ -52,7 +52,7 @@
   <section class="col-span-5 rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Live Vorschau</h2>
     <div class="h-full rounded-lg bg-muted/20 p-4 font-mono text-sm">
-      <p class="text-muted-foreground">Vorschau generiert sich später dynamisch...</p>
+      <p class="text-muted-foreground">{{ generatedMarkdown }}</p>
     </div>
   </section>
 </div>
