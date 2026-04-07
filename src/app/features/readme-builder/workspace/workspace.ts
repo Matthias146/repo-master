@@ -128,4 +128,15 @@ export class Workspace {
       });
     }
   }
+
+  removeBlock(blockToRemove: ReadmeBlock, event: Event) {
+    event.stopPropagation();
+
+    this.selectedBlocks = this.selectedBlocks.filter((b) => b !== blockToRemove);
+
+    if (this.activeBlock === blockToRemove) {
+      this.activeBlock = null;
+      this.markdownControl.setValue('', { emitEvent: false });
+    }
+  }
 }
