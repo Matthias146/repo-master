@@ -64,11 +64,18 @@ export class Workspace {
   activeBlock: ReadmeBlock | null = null;
 
   markdownControl = new FormControl<string>('', { nonNullable: true });
+  nameControl = new FormControl<string>('', { nonNullable: true });
 
   constructor() {
     this.markdownControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
       if (this.activeBlock) {
         this.activeBlock.markdown = newValue;
+      }
+    });
+
+    this.nameControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
+      if (this.activeBlock) {
+        this.activeBlock.name = newValue.trim() || 'Unbenannt';
       }
     });
   }
@@ -96,6 +103,7 @@ export class Workspace {
   selectBlock(block: ReadmeBlock) {
     this.activeBlock = block;
     this.markdownControl.setValue(block.markdown, { emitEvent: false });
+    this.nameControl.setValue(block.name, { emitEvent: false });
   }
 
   async copyToClipboard() {
@@ -141,14 +149,13 @@ export class Workspace {
 
   removeBlock(blockToRemove: ReadmeBlock, event: Event) {
     event.stopPropagation();
-
     this.availableBlocks.push(blockToRemove);
-
     this.selectedBlocks = this.selectedBlocks.filter((b) => b !== blockToRemove);
 
     if (this.activeBlock === blockToRemove) {
       this.activeBlock = null;
       this.markdownControl.setValue('', { emitEvent: false });
+      this.nameControl.setValue('', { emitEvent: false });
     }
   }
 }
