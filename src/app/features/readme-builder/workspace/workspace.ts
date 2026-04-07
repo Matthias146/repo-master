@@ -132,6 +132,8 @@ export class Workspace {
   removeBlock(blockToRemove: ReadmeBlock, event: Event) {
     event.stopPropagation();
 
+    this.availableBlocks.push(blockToRemove);
+
     this.selectedBlocks = this.selectedBlocks.filter((b) => b !== blockToRemove);
 
     if (this.activeBlock === blockToRemove) {
