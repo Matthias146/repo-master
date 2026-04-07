@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, computed, inject, signal } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -19,6 +19,27 @@ export interface ReadmeBlock {
   markdown: string;
 }
 
+const INITIAL_BLOCKS: ReadmeBlock[] = [
+  {
+    id: 'header',
+    name: 'Projekt-Titel & Header',
+    markdown:
+      '# Mein Großartiges Projekt\n\nEine kurze Beschreibung, was dieses Projekt so besonders macht.',
+  },
+  { id: 'install', name: 'Installation', markdown: '## Installation\n\n```bash\nnpm install\n```' },
+  { id: 'features', name: 'Features', markdown: '## Features\n\n- ✨ Feature 1\n- 🚀 Feature 2' },
+  {
+    id: 'tech',
+    name: 'Technologien',
+    markdown: '## Technologien\n\n- Angular\n- Tailwind CSS\n- Spartan UI',
+  },
+  {
+    id: 'license',
+    name: 'Lizenz',
+    markdown: '## Lizenz\n\nDieses Projekt ist lizenziert unter der MIT-Lizenz.',
+  },
+];
+
 @Component({
   selector: 'app-workspace',
   imports: [
@@ -33,108 +54,44 @@ export interface ReadmeBlock {
   styleUrl: './workspace.scss',
 })
 export class Workspace {
-  copied = false;
-  private cdr = inject(ChangeDetectorRef);
-  availableBlocks: ReadmeBlock[] = [
-    {
-      id: 'header',
-      name: 'Projekt-Titel & Header',
-      markdown:
-        '# Mein Großartiges Projekt\n\nEine kurze Beschreibung, was dieses Projekt so besonders macht.',
-    },
-    {
-      id: 'install',
-      name: 'Installation',
-      markdown: '## Installation\n\n```bash\nnpm install\n```',
-    },
-    { id: 'features', name: 'Features', markdown: '## Features\n\n- ✨ Feature 1\n- 🚀 Feature 2' },
-    {
-      id: 'tech',
-      name: 'Technologien',
-      markdown: '## Technologien\n\n- Angular\n- Tailwind CSS\n- Spartan UI',
-    },
-    {
-      id: 'license',
-      name: 'Lizenz',
-      markdown: '## Lizenz\n\nDieses Projekt ist lizenziert unter der MIT-Lizenz.',
-    },
-  ];
+  availableBlocks = signal<ReadmeBlock[]>(INITIAL_BLOCKS);
+  selectedBlocks = signal<ReadmeBlock[]>([]);
 
-  selectedBlocks: ReadmeBlock[] = [];
-  activeBlock: ReadmeBlock | null = null;
+  activeBlockId = signal<string | null>(null);
+
+  activeBlock = computed(
+    () => this.selectedBlocks().find((b) => b.id === this.activeBlockId()) || null,
+  );
+
+  generatedMarkdown = computed(() => {
+    const blocks = this.selectedBlocks();
+    if (blocks.length === 0) return 'Vorschau generiert sich später dynamisch...';
+    return blocks.map((block) => block.markdown).join('\n\n');
+  });
+
+  copied = signal<boolean>(false);
 
   markdownControl = new FormControl<string>('', { nonNullable: true });
   nameControl = new FormControl<string>('', { nonNullable: true });
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor() {
     this.markdownControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
-      if (this.activeBlock) {
-        this.activeBlock.markdown = newValue;
-      }
+      const id = this.activeBlockId();
+      if (id) this.updateBlock(id, { markdown: newValue });
     });
 
     this.nameControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
-      if (this.activeBlock) {
-        this.activeBlock.name = newValue.trim() || 'Unbenannt';
-      }
+      const id = this.activeBlockId();
+      if (id) this.updateBlock(id, { name: newValue.trim() || 'Unbenannt' });
     });
   }
 
-  get generatedMarkdown(): string {
-    if (this.selectedBlocks.length === 0) {
-      return 'Vorschau generiert sich später dynamisch...';
-    }
-    return this.selectedBlocks.map((block) => block.markdown).join('\n\n');
-  }
-
-  drop(event: CdkDragDrop<ReadmeBlock[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-    }
-  }
-
-  selectBlock(block: ReadmeBlock) {
-    this.activeBlock = block;
-    this.markdownControl.setValue(block.markdown, { emitEvent: false });
-    this.nameControl.setValue(block.name, { emitEvent: false });
-  }
-
-  async copyToClipboard() {
-    if (this.selectedBlocks.length === 0) return;
-
-    try {
-      await navigator.clipboard.writeText(this.generatedMarkdown);
-
-      this.copied = true;
-
-      this.cdr.detectChanges();
-
-      toast.success('In die Zwischenablage kopiert', {
-        description: 'Dein Markdown-Code ist nun bereit zum Einfügen.',
-        position: 'bottom-right',
-        duration: 2000,
-      });
-
-      setTimeout(() => {
-        this.copied = false;
-        this.cdr.detectChanges();
-      }, 2000);
-    } catch (err) {
-      console.log(err);
-
-      toast.error('Fehler beim Kopieren', {
-        description: 'Es gab ein Problem mit der Zwischenablage.',
-        position: 'bottom-right',
-        duration: 2000,
-      });
-    }
+  private updateBlock(id: string, changes: Partial<ReadmeBlock>) {
+    this.selectedBlocks.update((blocks) =>
+      blocks.map((b) => (b.id === id ? { ...b, ...changes } : b)),
+    );
   }
 
   addCustomBlock() {
@@ -143,19 +100,77 @@ export class Workspace {
       name: 'Neuer Baustein',
       markdown: '## Neuer Abschnitt\n\nSchreibe hier deinen Text...',
     };
-
-    this.availableBlocks.push(newBlock);
+    this.availableBlocks.update((blocks) => [...blocks, newBlock]);
   }
 
-  removeBlock(blockToRemove: ReadmeBlock, event: Event) {
+  removeBlock(blockId: string, event: Event) {
     event.stopPropagation();
-    this.availableBlocks.push(blockToRemove);
-    this.selectedBlocks = this.selectedBlocks.filter((b) => b !== blockToRemove);
 
-    if (this.activeBlock === blockToRemove) {
-      this.activeBlock = null;
+    const blockToReturn = this.selectedBlocks().find((b) => b.id === blockId);
+    if (!blockToReturn) return;
+
+    this.availableBlocks.update((blocks) => [...blocks, blockToReturn]);
+    this.selectedBlocks.update((blocks) => blocks.filter((b) => b.id !== blockId));
+
+    if (this.activeBlockId() === blockId) {
+      this.activeBlockId.set(null);
       this.markdownControl.setValue('', { emitEvent: false });
       this.nameControl.setValue('', { emitEvent: false });
+    }
+  }
+
+  selectBlock(block: ReadmeBlock) {
+    this.activeBlockId.set(block.id);
+    this.markdownControl.setValue(block.markdown, { emitEvent: false });
+    this.nameControl.setValue(block.name, { emitEvent: false });
+  }
+
+  drop(event: CdkDragDrop<ReadmeBlock[]>) {
+    const prevId = event.previousContainer.id;
+    const currId = event.container.id;
+
+    const currentData = [...event.container.data];
+    const previousData = prevId === currId ? currentData : [...event.previousContainer.data];
+
+    if (prevId === currId) {
+      moveItemInArray(currentData, event.previousIndex, event.currentIndex);
+      this.updateListState(currId, currentData);
+    } else {
+      transferArrayItem(previousData, currentData, event.previousIndex, event.currentIndex);
+      this.updateListState(prevId, previousData);
+      this.updateListState(currId, currentData);
+    }
+  }
+
+  private updateListState(containerId: string, data: ReadmeBlock[]) {
+    if (containerId === 'available-list') this.availableBlocks.set(data);
+    if (containerId === 'selected-list') this.selectedBlocks.set(data);
+  }
+
+  async copyToClipboard() {
+    if (this.selectedBlocks().length === 0) return;
+
+    try {
+      await navigator.clipboard.writeText(this.generatedMarkdown());
+      this.copied.set(true);
+      this.cdr.detectChanges();
+
+      toast.success('In die Zwischenablage kopiert', {
+        description: 'Dein Markdown-Code ist nun bereit zum Einfügen.',
+        position: 'bottom-right',
+      });
+
+      setTimeout(() => {
+        this.copied.set(false);
+        this.cdr.detectChanges();
+      }, 2000);
+    } catch (err) {
+      console.log(err);
+
+      toast.error('Fehler beim Kopieren', {
+        description: 'Es gab ein Problem mit der Zwischenablage.',
+        position: 'bottom-right',
+      });
     }
   }
 }

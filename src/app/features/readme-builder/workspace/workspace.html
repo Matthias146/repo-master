@@ -5,12 +5,13 @@
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Bausteine</h2>
 
     <div
+      id="available-list"
       cdkDropList
-      [cdkDropListData]="availableBlocks"
+      [cdkDropListData]="availableBlocks()"
       (cdkDropListDropped)="drop($event)"
       class="flex flex-1 flex-col gap-2 overflow-y-auto pr-1"
     >
-      @for (block of availableBlocks; track block) {
+      @for (block of availableBlocks(); track block.id) {
         <div
           cdkDrag
           class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing transition-colors"
@@ -49,10 +50,10 @@
 
     <div
       class="relative flex flex-col rounded-lg border-2 border-dashed border-muted bg-muted/10 overflow-hidden transition-all"
-      [class.flex-1]="!activeBlock"
-      [class.h-1/2]="activeBlock"
+      [class.flex-1]="!activeBlock()"
+      [class.h-1/2]="activeBlock()"
     >
-      @if (selectedBlocks.length === 0) {
+      @if (selectedBlocks().length === 0) {
         <div
           class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground opacity-60"
         >
@@ -78,16 +79,17 @@
       }
 
       <div
+        id="selected-list"
         cdkDropList
-        [cdkDropListData]="selectedBlocks"
+        [cdkDropListData]="selectedBlocks()"
         (cdkDropListDropped)="drop($event)"
         class="absolute inset-0 z-10 flex flex-col gap-3 p-4 overflow-y-auto"
       >
-        @for (block of selectedBlocks; track block) {
+        @for (block of selectedBlocks(); track block.id) {
           <div
             cdkDrag
-            [class.ring-2]="activeBlock === block"
-            [class.ring-primary]="activeBlock === block"
+            [class.ring-2]="activeBlockId() === block.id"
+            [class.ring-primary]="activeBlockId() === block.id"
             class="group rounded-lg border border-primary/20 bg-primary/5 p-3 shadow-sm hover:bg-primary/10 cursor-grab active:cursor-grabbing transition-all flex items-center justify-between"
           >
             <div class="flex items-center gap-3">
@@ -141,7 +143,7 @@
                 </svg>
               </button>
               <button
-                (click)="removeBlock(block, $event)"
+                (click)="removeBlock(block.id, $event)"
                 title="Entfernen"
                 class="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
               >
@@ -169,7 +171,7 @@
       </div>
     </div>
 
-    @if (activeBlock) {
+    @if (activeBlock(); as active) {
       <div
         class="mt-4 flex flex-1 flex-col overflow-hidden rounded-lg border bg-background shadow-sm ring-1 ring-border/50"
       >
@@ -190,19 +192,16 @@
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-
             <input
               type="text"
               [formControl]="nameControl"
               class="flex-1 bg-transparent px-1 py-0.5 text-xs font-medium text-foreground focus-visible:outline-none border-b border-transparent focus-visible:border-primary/50 transition-colors"
               placeholder="Baustein Name"
             />
-
             <span class="text-xs font-medium text-muted-foreground shrink-0">.md</span>
           </div>
-
           <button
-            (click)="activeBlock = null"
+            (click)="activeBlockId.set(null)"
             class="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
           >
             <svg
@@ -241,12 +240,12 @@
         variant="outline"
         size="sm"
         (click)="copyToClipboard()"
-        [class.border-green-500]="copied"
-        [class.text-green-500]="copied"
-        [disabled]="selectedBlocks.length === 0"
+        [class.border-green-500]="copied()"
+        [class.text-green-500]="copied()"
+        [disabled]="selectedBlocks().length === 0"
         class="gap-1.5 transition-all"
       >
-        @if (copied) {
+        @if (copied()) {
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -284,7 +283,7 @@
     </div>
 
     <div class="flex-1 overflow-y-auto rounded-lg bg-muted/20 p-6 pr-3">
-      <markdown [data]="generatedMarkdown" class="prose prose-sm dark:prose-invert max-w-none">
+      <markdown [data]="generatedMarkdown()" class="prose prose-sm dark:prose-invert max-w-none">
       </markdown>
     </div>
   </section>
