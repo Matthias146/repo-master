@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import {
   CdkDragDrop,
   CdkDrag,
@@ -12,12 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { toast } from '@spartan-ng/brain/sonner';
-
-export interface ReadmeBlock {
-  id: string;
-  name: string;
-  markdown: string;
-}
+import { ReadmeBlock, WorkspaceService } from './workspace.service';
 
 @Component({
   selector: 'app-workspace',
@@ -33,97 +28,78 @@ export interface ReadmeBlock {
   styleUrl: './workspace.scss',
 })
 export class Workspace {
-  copied = false;
+  public builder = inject(WorkspaceService);
   private cdr = inject(ChangeDetectorRef);
-  availableBlocks: ReadmeBlock[] = [
-    {
-      id: 'header',
-      name: 'Projekt-Titel & Header',
-      markdown:
-        '# Mein Großartiges Projekt\n\nEine kurze Beschreibung, was dieses Projekt so besonders macht.',
-    },
-    {
-      id: 'install',
-      name: 'Installation',
-      markdown: '## Installation\n\n```bash\nnpm install\n```',
-    },
-    { id: 'features', name: 'Features', markdown: '## Features\n\n- ✨ Feature 1\n- 🚀 Feature 2' },
-    {
-      id: 'tech',
-      name: 'Technologien',
-      markdown: '## Technologien\n\n- Angular\n- Tailwind CSS\n- Spartan UI',
-    },
-    {
-      id: 'license',
-      name: 'Lizenz',
-      markdown: '## Lizenz\n\nDieses Projekt ist lizenziert unter der MIT-Lizenz.',
-    },
-  ];
 
-  selectedBlocks: ReadmeBlock[] = [];
-  activeBlock: ReadmeBlock | null = null;
-
+  copied = signal<boolean>(false);
   markdownControl = new FormControl<string>('', { nonNullable: true });
   nameControl = new FormControl<string>('', { nonNullable: true });
 
   constructor() {
     this.markdownControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
-      if (this.activeBlock) {
-        this.activeBlock.markdown = newValue;
-      }
+      const id = this.builder.activeBlockId();
+      if (id) this.builder.updateBlock(id, { markdown: newValue });
     });
 
     this.nameControl.valueChanges.pipe(takeUntilDestroyed()).subscribe((newValue) => {
-      if (this.activeBlock) {
-        this.activeBlock.name = newValue.trim() || 'Unbenannt';
-      }
+      const id = this.builder.activeBlockId();
+      if (id) this.builder.updateBlock(id, { name: newValue.trim() || 'Unbenannt' });
     });
   }
 
-  get generatedMarkdown(): string {
-    if (this.selectedBlocks.length === 0) {
-      return 'Vorschau generiert sich später dynamisch...';
-    }
-    return this.selectedBlocks.map((block) => block.markdown).join('\n\n');
-  }
-
-  drop(event: CdkDragDrop<ReadmeBlock[]>) {
-    if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-    } else {
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex,
-      );
-    }
-  }
-
   selectBlock(block: ReadmeBlock) {
-    this.activeBlock = block;
+    this.builder.activeBlockId.set(block.id);
     this.markdownControl.setValue(block.markdown, { emitEvent: false });
     this.nameControl.setValue(block.name, { emitEvent: false });
   }
 
+  removeBlock(blockId: string, event: Event) {
+    event.stopPropagation();
+    this.builder.removeBlock(blockId);
+
+    if (!this.builder.activeBlockId()) {
+      this.markdownControl.setValue('', { emitEvent: false });
+      this.nameControl.setValue('', { emitEvent: false });
+    }
+  }
+
+  drop(event: CdkDragDrop<ReadmeBlock[]>) {
+    const prevId = event.previousContainer.id;
+    const currId = event.container.id;
+
+    const currentData = [...event.container.data];
+    const previousData = prevId === currId ? currentData : [...event.previousContainer.data];
+
+    if (prevId === currId) {
+      moveItemInArray(currentData, event.previousIndex, event.currentIndex);
+      this.updateServiceList(currId, currentData);
+    } else {
+      transferArrayItem(previousData, currentData, event.previousIndex, event.currentIndex);
+      this.updateServiceList(prevId, previousData);
+      this.updateServiceList(currId, currentData);
+    }
+  }
+
+  private updateServiceList(containerId: string, data: ReadmeBlock[]) {
+    if (containerId === 'available-list') this.builder.setAvailableBlocks(data);
+    if (containerId === 'selected-list') this.builder.setSelectedBlocks(data);
+  }
+
   async copyToClipboard() {
-    if (this.selectedBlocks.length === 0) return;
+    if (this.builder.selectedBlocks().length === 0) return;
 
     try {
-      await navigator.clipboard.writeText(this.generatedMarkdown);
-
-      this.copied = true;
-
+      await navigator.clipboard.writeText(this.builder.generatedMarkdown());
+      this.copied.set(true);
       this.cdr.detectChanges();
 
       toast.success('In die Zwischenablage kopiert', {
         description: 'Dein Markdown-Code ist nun bereit zum Einfügen.',
-        position: 'bottom-right',
-        duration: 2000,
+        position: 'top-center',
       });
 
       setTimeout(() => {
-        this.copied = false;
+        this.copied.set(false);
         this.cdr.detectChanges();
       }, 2000);
     } catch (err) {
@@ -131,31 +107,7 @@ export class Workspace {
 
       toast.error('Fehler beim Kopieren', {
         description: 'Es gab ein Problem mit der Zwischenablage.',
-        position: 'bottom-right',
-        duration: 2000,
       });
-    }
-  }
-
-  addCustomBlock() {
-    const newBlock: ReadmeBlock = {
-      id: `custom-${Date.now()}`,
-      name: 'Neuer Baustein',
-      markdown: '## Neuer Abschnitt\n\nSchreibe hier deinen Text...',
-    };
-
-    this.availableBlocks.push(newBlock);
-  }
-
-  removeBlock(blockToRemove: ReadmeBlock, event: Event) {
-    event.stopPropagation();
-    this.availableBlocks.push(blockToRemove);
-    this.selectedBlocks = this.selectedBlocks.filter((b) => b !== blockToRemove);
-
-    if (this.activeBlock === blockToRemove) {
-      this.activeBlock = null;
-      this.markdownControl.setValue('', { emitEvent: false });
-      this.nameControl.setValue('', { emitEvent: false });
     }
   }
 }
