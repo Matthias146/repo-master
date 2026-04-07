@@ -7,11 +7,11 @@
     <div
       id="available-list"
       cdkDropList
-      [cdkDropListData]="availableBlocks()"
+      [cdkDropListData]="builder.availableBlocks()"
       (cdkDropListDropped)="drop($event)"
       class="flex flex-1 flex-col gap-2 overflow-y-auto pr-1"
     >
-      @for (block of availableBlocks(); track block.id) {
+      @for (block of builder.availableBlocks(); track block.id) {
         <div
           cdkDrag
           class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing transition-colors"
@@ -22,7 +22,7 @@
     </div>
 
     <button
-      (click)="addCustomBlock()"
+      (click)="builder.addCustomBlock()"
       class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted bg-transparent p-3 text-sm font-medium text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <svg
@@ -49,11 +49,9 @@
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Editor</h2>
 
     <div
-      class="relative flex flex-col rounded-lg border-2 border-dashed border-muted bg-muted/10 overflow-hidden transition-all"
-      [class.flex-1]="!activeBlock()"
-      [class.h-1/2]="activeBlock()"
+      class="relative flex flex-1 flex-col rounded-lg border-2 border-dashed border-muted bg-muted/10 overflow-hidden transition-all"
     >
-      @if (selectedBlocks().length === 0) {
+      @if (builder.selectedBlocks().length === 0) {
         <div
           class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground opacity-60"
         >
@@ -81,15 +79,15 @@
       <div
         id="selected-list"
         cdkDropList
-        [cdkDropListData]="selectedBlocks()"
+        [cdkDropListData]="builder.selectedBlocks()"
         (cdkDropListDropped)="drop($event)"
         class="absolute inset-0 z-10 flex flex-col gap-3 p-4 overflow-y-auto"
       >
-        @for (block of selectedBlocks(); track block.id) {
+        @for (block of builder.selectedBlocks(); track block.id) {
           <div
             cdkDrag
-            [class.ring-2]="activeBlockId() === block.id"
-            [class.ring-primary]="activeBlockId() === block.id"
+            [class.ring-2]="builder.activeBlockId() === block.id"
+            [class.ring-primary]="builder.activeBlockId() === block.id"
             class="group rounded-lg border border-primary/20 bg-primary/5 p-3 shadow-sm hover:bg-primary/10 cursor-grab active:cursor-grabbing transition-all flex items-center justify-between"
           >
             <div class="flex items-center gap-3">
@@ -171,7 +169,7 @@
       </div>
     </div>
 
-    @if (activeBlock(); as active) {
+    @if (builder.activeBlock(); as active) {
       <div
         class="mt-4 flex flex-1 flex-col overflow-hidden rounded-lg border bg-background shadow-sm ring-1 ring-border/50"
       >
@@ -201,7 +199,7 @@
             <span class="text-xs font-medium text-muted-foreground shrink-0">.md</span>
           </div>
           <button
-            (click)="activeBlockId.set(null)"
+            (click)="builder.activeBlockId.set(null)"
             class="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
           >
             <svg
@@ -242,7 +240,7 @@
         (click)="copyToClipboard()"
         [class.border-green-500]="copied()"
         [class.text-green-500]="copied()"
-        [disabled]="selectedBlocks().length === 0"
+        [disabled]="builder.selectedBlocks().length === 0"
         class="gap-1.5 transition-all"
       >
         @if (copied()) {
@@ -283,7 +281,10 @@
     </div>
 
     <div class="flex-1 overflow-y-auto rounded-lg bg-muted/20 p-6 pr-3">
-      <markdown [data]="generatedMarkdown()" class="prose prose-sm dark:prose-invert max-w-none">
+      <markdown
+        [data]="builder.generatedMarkdown()"
+        class="prose prose-sm dark:prose-invert max-w-none"
+      >
       </markdown>
     </div>
   </section>
