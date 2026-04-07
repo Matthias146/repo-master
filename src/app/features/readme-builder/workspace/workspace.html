@@ -8,17 +8,38 @@
       cdkDropList
       [cdkDropListData]="availableBlocks"
       (cdkDropListDropped)="drop($event)"
-      class="flex flex-1 flex-col gap-2 overflow-y-auto"
+      class="flex flex-1 flex-col gap-2 overflow-y-auto pr-1"
     >
       @for (block of availableBlocks; track block) {
         <div
           cdkDrag
-          class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing"
+          class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing transition-colors"
         >
           {{ block.name }}
         </div>
       }
     </div>
+
+    <button
+      (click)="addCustomBlock()"
+      class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted bg-transparent p-3 text-sm font-medium text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M5 12h14" />
+        <path d="M12 5v14" />
+      </svg>
+      Eigener Baustein
+    </button>
   </aside>
 
   <section
@@ -27,16 +48,13 @@
     <h2 class="mb-4 text-lg font-semibold tracking-tight">Editor</h2>
 
     <div
-      cdkDropList
-      [cdkDropListData]="selectedBlocks"
-      (cdkDropListDropped)="drop($event)"
-      class="flex flex-col gap-3 rounded-lg border-2 border-dashed border-muted bg-muted/10 p-4 overflow-y-auto transition-all"
+      class="relative flex flex-col rounded-lg border-2 border-dashed border-muted bg-muted/10 overflow-hidden transition-all"
       [class.flex-1]="!activeBlock"
       [class.h-1/2]="activeBlock"
     >
       @if (selectedBlocks.length === 0) {
         <div
-          class="flex h-full flex-col items-center justify-center gap-3 text-muted-foreground pointer-events-none opacity-60"
+          class="absolute inset-0 flex flex-col items-center justify-center gap-3 text-muted-foreground opacity-60"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -58,44 +76,21 @@
           <p class="text-sm font-medium">Bausteine hier ablegen</p>
         </div>
       }
-      @for (block of selectedBlocks; track block) {
-        <div
-          cdkDrag
-          [class.ring-2]="activeBlock === block"
-          [class.ring-primary]="activeBlock === block"
-          class="group rounded-lg border border-primary/20 bg-primary/5 p-3 shadow-sm hover:bg-primary/10 cursor-grab active:cursor-grabbing transition-all flex items-center justify-between"
-        >
-          <div class="flex items-center gap-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="text-muted-foreground"
-            >
-              <circle cx="9" cy="12" r="1" />
-              <circle cx="9" cy="5" r="1" />
-              <circle cx="9" cy="19" r="1" />
-              <circle cx="15" cy="12" r="1" />
-              <circle cx="15" cy="5" r="1" />
-              <circle cx="15" cy="19" r="1" />
-            </svg>
-            <span class="text-sm font-medium text-foreground transition-colors">{{
-              block.name
-            }}</span>
-          </div>
 
-          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              (click)="selectBlock(block)"
-              title="Bearbeiten"
-              class="rounded-md p-1.5 text-muted-foreground hover:bg-primary/20 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
-            >
+      <div
+        cdkDropList
+        [cdkDropListData]="selectedBlocks"
+        (cdkDropListDropped)="drop($event)"
+        class="absolute inset-0 z-10 flex flex-col gap-3 p-4 overflow-y-auto"
+      >
+        @for (block of selectedBlocks; track block) {
+          <div
+            cdkDrag
+            [class.ring-2]="activeBlock === block"
+            [class.ring-primary]="activeBlock === block"
+            class="group rounded-lg border border-primary/20 bg-primary/5 p-3 shadow-sm hover:bg-primary/10 cursor-grab active:cursor-grabbing transition-all flex items-center justify-between"
+          >
+            <div class="flex items-center gap-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -106,40 +101,72 @@
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
+                class="text-muted-foreground"
               >
-                <path
-                  d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
-                />
-                <path d="m15 5 4 4" />
+                <circle cx="9" cy="12" r="1" />
+                <circle cx="9" cy="5" r="1" />
+                <circle cx="9" cy="19" r="1" />
+                <circle cx="15" cy="12" r="1" />
+                <circle cx="15" cy="5" r="1" />
+                <circle cx="15" cy="19" r="1" />
               </svg>
-            </button>
+              <span class="text-sm font-medium text-foreground transition-colors">{{
+                block.name
+              }}</span>
+            </div>
 
-            <button
-              (click)="removeBlock(block, $event)"
-              title="Entfernen"
-              class="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
+            <div
+              class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity relative z-20"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+              <button
+                (click)="selectBlock(block)"
+                title="Bearbeiten"
+                class="rounded-md p-1.5 text-muted-foreground hover:bg-primary/20 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
               >
-                <path d="M3 6h18" />
-                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
-                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                <line x1="10" y1="11" x2="10" y2="17" />
-                <line x1="14" y1="11" x2="14" y2="17" />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                  />
+                  <path d="m15 5 4 4" />
+                </svg>
+              </button>
+              <button
+                (click)="removeBlock(block, $event)"
+                title="Entfernen"
+                class="rounded-md p-1.5 text-muted-foreground hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M3 6h18" />
+                  <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                  <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  <line x1="10" y1="11" x2="10" y2="17" />
+                  <line x1="14" y1="11" x2="14" y2="17" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      }
+        }
+      </div>
     </div>
 
     @if (activeBlock) {
@@ -147,7 +174,7 @@
         class="mt-4 flex flex-1 flex-col overflow-hidden rounded-lg border bg-background shadow-sm ring-1 ring-border/50"
       >
         <div class="flex items-center justify-between border-b bg-muted/40 px-3 py-2">
-          <div class="flex items-center gap-2">
+          <div class="flex flex-1 items-center gap-2 mr-4">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -158,16 +185,25 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="text-primary"
+              class="text-primary shrink-0"
             >
               <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
               <polyline points="14 2 14 8 20 8" />
             </svg>
-            <span class="text-xs font-medium text-foreground">{{ activeBlock.name }}.md</span>
+
+            <input
+              type="text"
+              [formControl]="nameControl"
+              class="flex-1 bg-transparent px-1 py-0.5 text-xs font-medium text-foreground focus-visible:outline-none border-b border-transparent focus-visible:border-primary/50 transition-colors"
+              placeholder="Baustein Name"
+            />
+
+            <span class="text-xs font-medium text-muted-foreground shrink-0">.md</span>
           </div>
+
           <button
             (click)="activeBlock = null"
-            class="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            class="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors shrink-0"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -185,10 +221,9 @@
             </svg>
           </button>
         </div>
-
         <textarea
           [formControl]="markdownControl"
-          class="flex-1 w-full resize-none border-none bg-transparent px-4 py-3 text-sm text-foreground/90 focus-visible:outline-none font-mono placeholder:text-muted-foreground/50"
+          class="flex-1 w-full resize-none border-none bg-background px-4 py-3 text-sm text-foreground/90 focus-visible:outline-none font-mono placeholder:text-muted-foreground/50"
           placeholder="Markdown Code hier eingeben..."
         ></textarea>
       </div>
