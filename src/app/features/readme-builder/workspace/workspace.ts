@@ -129,6 +129,16 @@ export class Workspace {
     }
   }
 
+  addCustomBlock() {
+    const newBlock: ReadmeBlock = {
+      id: `custom-${Date.now()}`,
+      name: 'Neuer Baustein',
+      markdown: '## Neuer Abschnitt\n\nSchreibe hier deinen Text...',
+    };
+
+    this.availableBlocks.push(newBlock);
+  }
+
   removeBlock(blockToRemove: ReadmeBlock, event: Event) {
     event.stopPropagation();
 
