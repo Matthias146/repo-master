@@ -39,6 +39,7 @@ testem.log
 __screenshots__/
 src/environments/environment.development.ts
 src/environments/environment.ts
+.htaccess
 
 # System files
 .DS_Store
