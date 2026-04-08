@@ -1,3 +1,4 @@
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { computed, Injectable, signal } from '@angular/core';
 
 export interface ReadmeBlock {
@@ -78,5 +79,27 @@ export class WorkspaceService {
 
   setSelectedBlocks(blocks: ReadmeBlock[]) {
     this.selectedBlocks.set(blocks);
+  }
+
+  handleDrop(event: CdkDragDrop<ReadmeBlock[]>) {
+    const prevId = event.previousContainer.id;
+    const currId = event.container.id;
+
+    const currentData = [...event.container.data];
+    const previousData = prevId === currId ? currentData : [...event.previousContainer.data];
+
+    if (prevId === currId) {
+      moveItemInArray(currentData, event.previousIndex, event.currentIndex);
+      this.updateListState(currId, currentData);
+    } else {
+      transferArrayItem(previousData, currentData, event.previousIndex, event.currentIndex);
+      this.updateListState(prevId, previousData);
+      this.updateListState(currId, currentData);
+    }
+  }
+
+  private updateListState(containerId: string, data: ReadmeBlock[]) {
+    if (containerId === 'available-list') this.availableBlocks.set(data);
+    if (containerId === 'selected-list') this.selectedBlocks.set(data);
   }
 }
