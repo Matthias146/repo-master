@@ -1,0 +1,41 @@
+<aside class="flex h-full flex-col rounded-xl border bg-card p-4 text-card-foreground shadow-sm">
+  <h2 class="mb-4 text-lg font-semibold tracking-tight">Bausteine</h2>
+
+  <div
+    id="available-list"
+    cdkDropList
+    [cdkDropListData]="builder.availableBlocks()"
+    (cdkDropListDropped)="builder.handleDrop($event)"
+    class="flex flex-1 flex-col gap-2 overflow-y-auto pr-1"
+  >
+    @for (block of builder.availableBlocks(); track block.id) {
+      <div
+        cdkDrag
+        class="cursor-grab rounded-md border bg-muted/50 p-3 text-sm font-medium hover:bg-muted active:cursor-grabbing transition-colors"
+      >
+        {{ block.name }}
+      </div>
+    }
+  </div>
+
+  <button
+    (click)="builder.addCustomBlock()"
+    class="mt-4 flex w-full items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted bg-transparent p-3 text-sm font-medium text-muted-foreground hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </svg>
+    Eigener Baustein
+  </button>
+</aside>

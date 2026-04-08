@@ -1,0 +1,58 @@
+<section
+  class="flex h-full flex-col rounded-xl border bg-card p-4 text-card-foreground shadow-sm relative"
+>
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold tracking-tight">Live Vorschau</h2>
+    <button
+      hlmBtn
+      variant="outline"
+      size="sm"
+      (click)="copyToClipboard()"
+      [class.border-green-500]="copied()"
+      [class.text-green-500]="copied()"
+      [disabled]="builder.selectedBlocks().length === 0"
+      class="gap-1.5 transition-all"
+    >
+      @if (copied()) {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-4 w-4 text-green-500"
+        >
+          <path d="M20 6 9 17l-5-5" />
+        </svg>
+        Kopiert!
+      } @else {
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="h-4 w-4"
+        >
+          <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
+          <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
+        </svg>
+        Markdown Kopieren
+      }
+    </button>
+  </div>
+  <div class="flex-1 overflow-y-auto rounded-lg bg-muted/20 p-6 pr-3">
+    <markdown
+      [data]="builder.generatedMarkdown()"
+      class="prose prose-sm dark:prose-invert max-w-none"
+    ></markdown>
+  </div>
+</section>
