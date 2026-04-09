@@ -135,7 +135,24 @@
             [disabled]="!repoControl.value"
             class="bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50 transition-colors border-l border-input"
           >
-            SCAN
+            @if (isScanning()) {
+              <span class="flex gap-1">
+                <span
+                  class="h-1.5 w-1.5 rounded-full bg-current animate-bounce"
+                  style="animation-delay: 0ms"
+                ></span>
+                <span
+                  class="h-1.5 w-1.5 rounded-full bg-current animate-bounce"
+                  style="animation-delay: 150ms"
+                ></span>
+                <span
+                  class="h-1.5 w-1.5 rounded-full bg-current animate-bounce"
+                  style="animation-delay: 300ms"
+                ></span>
+              </span>
+            } @else {
+              SCAN
+            }
           </button>
         </div>
       </div>
