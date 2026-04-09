@@ -13,4 +13,13 @@ export const routes: Routes = [
       { path: 'commits', component: GitCommit },
     ],
   },
+  {
+    path: 'impressum',
+    loadComponent: () => import('./features/legal/impressum/impressum').then((m) => m.Impressum),
+  },
+  {
+    path: 'datenschutz',
+    loadComponent: () =>
+      import('./features/legal/datenschutz/datenschutz').then((m) => m.Datenschutz),
+  },
 ];
