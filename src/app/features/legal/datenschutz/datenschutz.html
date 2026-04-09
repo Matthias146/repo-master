@@ -1,0 +1,195 @@
+<main class="max-w-5xl mx-auto p-6 md:p-12 text-foreground">
+  <a
+    routerLink="/"
+    class="inline-flex items-center gap-2 mb-8 text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="m15 18-6-6 6-6" />
+    </svg>
+    Zurück zum Editor
+  </a>
+
+  <header class="mb-12">
+    <h1 class="text-3xl md:text-4xl font-bold tracking-tight mb-4">Datenschutzerklärung</h1>
+    <p class="text-lg text-muted-foreground max-w-2xl">
+      Informationen zur Verarbeitung personenbezogener Daten beim Besuch dieser Website gemäß DSGVO.
+    </p>
+  </header>
+
+  <div class="grid grid-cols-1 md:grid-cols-12 gap-12">
+    <section class="md:col-span-4 space-y-10" aria-labelledby="privacy-facts">
+      <div>
+        <h2 id="privacy-facts" class="text-xl font-semibold border-b border-border pb-2 mb-4">
+          Kurz &amp; Klar
+        </h2>
+        <dl class="space-y-4 text-sm">
+          <div class="flex flex-col gap-1">
+            <dt class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Verantwortlicher
+            </dt>
+            <dd class="font-medium">Matthias Hammelehle</dd>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <dt class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Kontakt
+            </dt>
+            <dd>
+              <a
+                href="mailto:mahammelehle@outlook.de"
+                class="inline-flex items-center gap-2 px-3 py-2 bg-muted/50 hover:bg-muted rounded-md font-medium transition-colors border border-border w-fit mt-1"
+              >
+                ✉️ mahammelehle&#64;outlook.de
+              </a>
+            </dd>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <dt class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Zweck
+            </dt>
+            <dd class="font-medium">
+              Bereitstellung der App, Datenspeicherung &amp; Kontaktaufnahme
+            </dd>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <dt class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+              Rechtsgrundlagen
+            </dt>
+            <dd class="font-medium">Art. 6 Abs. 1 lit. f / lit. b DSGVO</dd>
+          </div>
+        </dl>
+
+        <p class="text-xs text-muted-foreground mt-6 italic">
+          Hinweis: Diese Seite wurde an die spezifischen Funktionen dieser App (Login, Datenbank)
+          angepasst.
+        </p>
+      </div>
+    </section>
+
+    <section class="md:col-span-8 space-y-8" aria-labelledby="privacy-content">
+      <div aria-labelledby="privacy-general">
+        <h3 id="privacy-general" class="text-lg font-semibold mb-3">1. Allgemeine Hinweise</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          Diese Datenschutzerklärung informiert darüber, welche personenbezogenen Daten beim Besuch
+          dieser Website verarbeitet werden und zu welchen Zwecken dies geschieht. Personenbezogene
+          Daten sind alle Daten, mit denen Sie persönlich identifiziert werden können.
+        </p>
+      </div>
+
+      <div aria-labelledby="privacy-controller">
+        <h3 id="privacy-controller" class="text-lg font-semibold mb-3">2. Verantwortlicher</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          Verantwortlich für die Datenverarbeitung auf dieser Website ist:
+          <strong class="text-foreground font-medium">Matthias Hammelehle</strong> (Kontakt siehe
+          „Kurz &amp; Klar“).
+        </p>
+      </div>
+
+      <div aria-labelledby="privacy-hosting">
+        <h3 id="privacy-hosting" class="text-lg font-semibold mb-3">
+          3. Hosting &amp; Server-Logfiles
+        </h3>
+        <div class="text-sm text-muted-foreground leading-relaxed space-y-4">
+          <p>
+            Beim Aufruf dieser Website können durch den Hosting-Provider automatisch Informationen
+            in sogenannten Server-Logfiles erhoben und gespeichert werden (z. B. IP-Adresse,
+            Datum/Uhrzeit, aufgerufene Seiten, Browser, Betriebssystem, Referrer-URL).
+          </p>
+          <p class="p-4 bg-muted/50 border-l-4 border-primary rounded-r-md italic text-foreground">
+            Die Verarbeitung erfolgt in der Regel auf Grundlage von
+            <strong class="font-medium">Art. 6 Abs. 1 lit. f DSGVO</strong>
+            (berechtigtes Interesse an der sicheren und stabilen Bereitstellung der Website).
+          </p>
+        </div>
+      </div>
+
+      <div aria-labelledby="privacy-app-features">
+        <h3 id="privacy-app-features" class="text-lg font-semibold mb-3">
+          4. Registrierung &amp; Datenbank (Supabase/GitHub)
+        </h3>
+        <div class="text-sm text-muted-foreground leading-relaxed space-y-4">
+          <p>
+            Für die Speicherfunktion der Bausteine nutzen wir die Dienste von
+            <strong class="text-foreground font-medium">Supabase</strong> sowie
+            <strong class="text-foreground font-medium">GitHub OAuth</strong> für den sicheren
+            Login. Wenn Sie sich über GitHub einloggen, wird Ihre GitHub-User-ID und die dort
+            hinterlegte E-Mail-Adresse verarbeitet, um Ihnen einen Account zuzuordnen.
+          </p>
+          <p>
+            Ihre selbst erstellten Bausteine (Markdown-Texte) werden in einer sicheren Datenbank
+            gespeichert, damit Sie diese über verschiedene Sitzungen hinweg nutzen können.
+            Rechtsgrundlage hierfür ist
+            <strong class="text-foreground font-medium">Art. 6 Abs. 1 lit. b DSGVO</strong>
+            (Erfüllung eines Vertrags bzw. Bereitstellung der App-Funktionalität).
+          </p>
+        </div>
+      </div>
+
+      <div aria-labelledby="privacy-contact">
+        <h3 id="privacy-contact" class="text-lg font-semibold mb-3">5. Kontaktaufnahme</h3>
+        <div class="text-sm text-muted-foreground leading-relaxed space-y-4">
+          <p>
+            Wenn Sie mich per E-Mail kontaktieren, werden die von Ihnen übermittelten Daten (z. B.
+            E-Mail-Adresse und Inhalt der Nachricht) zum Zweck der Bearbeitung der Anfrage
+            verarbeitet.
+          </p>
+          <p>
+            Rechtsgrundlage ist je nach Kontext
+            <strong class="text-foreground font-medium">Art. 6 Abs. 1 lit. b DSGVO</strong>
+            (Vertrag/Anbahnung) oder
+            <strong class="text-foreground font-medium">Art. 6 Abs. 1 lit. f DSGVO</strong>
+            (berechtigtes Interesse an der Kommunikation).
+          </p>
+        </div>
+      </div>
+
+      <div aria-labelledby="privacy-cookies">
+        <h3 id="privacy-cookies" class="text-lg font-semibold mb-3">6. Cookies / Local Storage</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          Diese Website nutzt technisch notwendige Speichermechanismen (Local Storage) –
+          insbesondere zur sicheren Speicherung Ihres Login-Tokens sowie für Theme-Einstellungen (z.
+          B. Dark Mode). Eine Nutzung zu Tracking-Zwecken durch Cookies erfolgt nicht.
+        </p>
+      </div>
+
+      <div aria-labelledby="privacy-rights">
+        <h3 id="privacy-rights" class="text-lg font-semibold mb-3">7. Ihre Rechte</h3>
+        <div class="text-sm text-muted-foreground leading-relaxed space-y-4">
+          <p>
+            Sie haben im Rahmen der geltenden gesetzlichen Bestimmungen das Recht auf Auskunft,
+            Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie
+            Widerspruch gegen die Verarbeitung Ihrer Daten.
+          </p>
+          <p>Zudem besteht ein Beschwerderecht bei einer Aufsichtsbehörde.</p>
+        </div>
+      </div>
+
+      <div aria-labelledby="privacy-security">
+        <h3 id="privacy-security" class="text-lg font-semibold mb-3">8. Datensicherheit</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed">
+          Ich setze geeignete technische und organisatorische Maßnahmen ein, um Ihre Daten gegen
+          zufällige oder vorsätzliche Manipulationen, teilweisen oder vollständigen Verlust sowie
+          gegen unbefugten Zugriff zu schützen.
+        </p>
+      </div>
+
+      <footer class="text-xs text-muted-foreground pt-8 border-t border-border mt-12">
+        <p>
+          Stand: <span>{{ today }}</span>
+        </p>
+      </footer>
+    </section>
+  </div>
+</main>
