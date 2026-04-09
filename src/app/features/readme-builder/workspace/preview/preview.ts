@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, inject, signal } from '@angular/core';
+import { AfterViewChecked, ChangeDetectorRef, Component, inject, signal } from '@angular/core';
 import { WorkspaceService } from '../../state/workspace.service';
 import { toast } from '@spartan-ng/brain/sonner';
 import { MarkdownModule } from 'ngx-markdown';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
+import * as Prism from 'prismjs';
 
 @Component({
   selector: 'app-preview',
@@ -10,10 +11,14 @@ import { HlmButtonImports } from '@spartan-ng/helm/button';
   templateUrl: './preview.html',
   styleUrl: './preview.scss',
 })
-export class Preview {
+export class Preview implements AfterViewChecked {
   public builder = inject(WorkspaceService);
   private cdr = inject(ChangeDetectorRef);
   copied = signal<boolean>(false);
+
+  ngAfterViewChecked() {
+    Prism.highlightAll();
+  }
 
   async copyToClipboard() {
     if (this.builder.selectedBlocks().length === 0) return;
