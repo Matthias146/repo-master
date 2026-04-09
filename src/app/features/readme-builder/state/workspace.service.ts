@@ -5,6 +5,7 @@ export interface ReadmeBlock {
   id: string;
   name: string;
   markdown: string;
+  isCustom?: boolean;
 }
 
 const INITIAL_BLOCKS: ReadmeBlock[] = [
@@ -57,19 +58,18 @@ export class WorkspaceService {
       id: `custom-${Date.now()}`,
       name: 'Neuer Baustein',
       markdown: '## Neuer Abschnitt\n\nSchreibe hier deinen Text...',
+      isCustom: true,
     };
     this.availableBlocks.update((blocks) => [...blocks, newBlock]);
   }
 
-  removeBlock(blockId: string) {
-    const blockToReturn = this.selectedBlocks().find((b) => b.id === blockId);
-    if (!blockToReturn) return;
+  removeBlock(id: string) {
+    const blockToRemove = this.selectedBlocks().find((b) => b.id === id);
 
-    this.availableBlocks.update((blocks) => [...blocks, blockToReturn]);
-    this.selectedBlocks.update((blocks) => blocks.filter((b) => b.id !== blockId));
+    this.selectedBlocks.update((blocks) => blocks.filter((b) => b.id !== id));
 
-    if (this.activeBlockId() === blockId) {
-      this.activeBlockId.set(null);
+    if (blockToRemove && !blockToRemove.isCustom) {
+      this.availableBlocks.update((blocks) => [...blocks, blockToRemove]);
     }
   }
 
@@ -101,5 +101,15 @@ export class WorkspaceService {
   private updateListState(containerId: string, data: ReadmeBlock[]) {
     if (containerId === 'available-list') this.availableBlocks.set(data);
     if (containerId === 'selected-list') this.selectedBlocks.set(data);
+  }
+
+  setScannedBlocks(scannedBlocks: ReadmeBlock[]) {
+    const standardBlocksToRescue = this.selectedBlocks().filter((b) => !b.isCustom);
+
+    if (standardBlocksToRescue.length > 0) {
+      this.availableBlocks.update((prev) => [...prev, ...standardBlocksToRescue]);
+    }
+
+    this.selectedBlocks.set(scannedBlocks);
   }
 }
