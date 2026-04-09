@@ -42,4 +42,12 @@ export class Editor {
       this.nameControl.setValue('', { emitEvent: false });
     }
   }
+
+  onNameChange(id: string, newName: string) {
+    this.builder.updateBlockName(id, newName);
+  }
+
+  onContentChange(id: string, value: string) {
+    this.builder.updateBlockMarkdown(id, value);
+  }
 }

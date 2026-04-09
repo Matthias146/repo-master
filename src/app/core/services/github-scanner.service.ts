@@ -51,54 +51,45 @@ export class GithubScannerService {
 
   private generateBlocksFromPackage(pkg: PackageJson, repoPath: string) {
     const deps = { ...(pkg.dependencies || {}), ...(pkg.devDependencies || {}) };
-    const blocks: ReadmeBlock[] = [];
 
-    blocks.push({
-      id: `header-${Date.now()}`,
+    const headerBlock: ReadmeBlock = {
+      id: `header-${Date.now()}-1`,
       name: 'Projekt Header',
       markdown: `# ${pkg.name ? pkg.name.toUpperCase() : repoPath}\n\n${pkg.description || 'Eine kurze Beschreibung dieses Projekts.'}\n\n![GitHub last commit](https://img.shields.io/github/last-commit/${repoPath})`,
-    });
+      isCustom: true,
+    };
 
-    let techStack =
-      '## 🚀 Technologien\n\nDieses Projekt wurde mit folgenden Frameworks und Tools gebaut:\n\n';
-    let techFound = false;
+    const techStackItems = [
+      deps['@angular/core'] ? '- **Angular**' : null,
+      deps['react'] ? '- **React**' : null,
+      deps['vue'] ? '- **Vue.js**' : null,
+      deps['tailwindcss'] ? '- **Tailwind CSS**' : null,
+      deps['typescript'] ? '- **TypeScript**' : null,
+      deps['vitest'] || deps['jest'] ? '- **Testing:** Vitest/Jest' : null,
+    ].filter(Boolean);
 
-    if (deps['@angular/core']) {
-      techStack += '- **Angular**\n';
-      techFound = true;
-    }
-    if (deps['react']) {
-      techStack += '- **React**\n';
-      techFound = true;
-    }
-    if (deps['vue']) {
-      techStack += '- **Vue.js**\n';
-      techFound = true;
-    }
-    if (deps['tailwindcss']) {
-      techStack += '- **Tailwind CSS**\n';
-      techFound = true;
-    }
-    if (deps['typescript']) {
-      techStack += '- **TypeScript**\n';
-      techFound = true;
-    }
-    if (deps['vitest'] || deps['jest']) {
-      techStack += '- **Testing:** Vitest/Jest\n';
-      techFound = true;
-    }
-
-    if (techFound) {
-      blocks.push({ id: `tech-${Date.now()}`, name: 'Tech Stack', markdown: techStack });
-    }
+    const techBlock: ReadmeBlock | null =
+      techStackItems.length > 0
+        ? {
+            id: `tech-${Date.now()}-2`,
+            name: 'Tech Stack',
+            markdown: `## 🚀 Technologien\n\nDieses Projekt wurde mit folgenden Frameworks und Tools gebaut:\n\n${techStackItems.join('\n')}`,
+            isCustom: true,
+          }
+        : null;
 
     const installCmd = pkg.name ? `cd ${pkg.name}` : 'cd project';
-    blocks.push({
-      id: `install-${Date.now()}`,
+    const installBlock: ReadmeBlock = {
+      id: `install-${Date.now()}-3`,
       name: 'Installation',
       markdown: `## 💻 Lokales Setup\n\nUm dieses Projekt lokal auszuführen, folge diesen Schritten:\n\n\`\`\`bash\n# Repository klonen\ngit clone https://github.com/${repoPath}.git\n\n# In den Ordner wechseln\n${installCmd}\n\n# Abhängigkeiten installieren\nnpm install\n\n# Server starten\nnpm start\n\`\`\``,
-    });
+      isCustom: true,
+    };
 
-    this.builder.setSelectedBlocks(blocks);
+    const blocks = [headerBlock, techBlock, installBlock].filter(
+      (block) => block !== null,
+    ) as ReadmeBlock[];
+
+    this.builder.setScannedBlocks(blocks);
   }
 }

@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { GithubScannerService } from '../../services/github-scanner.service';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Supabase } from '../../db/supabase';
 
 @Component({
   selector: 'app-shell',
@@ -11,6 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 })
 export class Shell {
   private scanner = inject(GithubScannerService);
+  public supabase = inject(Supabase);
 
   repoControl = new FormControl('');
   isScanning = signal<boolean>(false);
@@ -23,5 +25,13 @@ export class Shell {
       this.repoControl.reset();
       this.isScanning.set(false);
     }
+  }
+
+  async login() {
+    await this.supabase.signInWithGithub();
+  }
+
+  async logout() {
+    await this.supabase.signOut();
   }
 }
