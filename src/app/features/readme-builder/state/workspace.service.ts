@@ -79,19 +79,16 @@ export class WorkspaceService {
   }
 
   async updateBlockMarkdown(id: string, newMarkdown: string) {
-    this.selectedBlocks.update((blocks) =>
-      blocks.map((b) => (b.id === id ? { ...b, markdown: newMarkdown } : b)),
-    );
+    const updateFn = (blocks: ReadmeBlock[]) =>
+      blocks.map((b) => (b.id === id ? { ...b, markdown: newMarkdown } : b));
 
-    const session = this.supabase.session();
-    if (session) {
-      const { error } = await this.supabase.client
+    this.selectedBlocks.update(updateFn);
+
+    if (this.supabase.session() && !id.startsWith('custom-')) {
+      await this.supabase.client
         .from('custom_blocks')
         .update({ markdown: newMarkdown })
-        .eq('id', id)
-        .eq('user_id', session.user.id);
-
-      if (error) console.error('Update fehlgeschlagen:', error);
+        .eq('id', id);
     }
   }
 
@@ -152,14 +149,31 @@ export class WorkspaceService {
       this.availableBlocks.update((blocks) => [...blocks, cloudBlock]);
     }
   }
+  async updateBlockName(id: string, newName: string) {
+    const updateFn = (blocks: ReadmeBlock[]) =>
+      blocks.map((b) => (b.id === id ? { ...b, name: newName } : b));
 
-  removeBlock(id: string) {
-    const blockToRemove = this.selectedBlocks().find((b) => b.id === id);
+    this.availableBlocks.update(updateFn);
+    this.selectedBlocks.update(updateFn);
+
+    if (this.supabase.session() && !id.startsWith('custom-')) {
+      await this.supabase.client.from('custom_blocks').update({ name: newName }).eq('id', id);
+    }
+  }
+
+  async removeBlock(id: string) {
+    const block = this.selectedBlocks().find((b) => b.id === id);
+    if (!block) return;
 
     this.selectedBlocks.update((blocks) => blocks.filter((b) => b.id !== id));
 
-    if (blockToRemove && !blockToRemove.isCustom) {
-      this.availableBlocks.update((blocks) => [...blocks, blockToRemove]);
+    if (block.isCustom) {
+      this.availableBlocks.update((blocks) => blocks.filter((b) => b.id !== id));
+      if (this.supabase.session() && !id.startsWith('custom-')) {
+        await this.supabase.client.from('custom_blocks').delete().eq('id', id);
+      }
+    } else {
+      this.availableBlocks.update((prev) => [...prev, block]);
     }
   }
 
