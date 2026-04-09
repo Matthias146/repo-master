@@ -175,7 +175,11 @@
         [formControl]="markdownControl"
         class="flex-1 w-full resize-none border-none bg-background px-4 py-3 text-sm text-foreground/90 focus-visible:outline-none font-mono placeholder:text-muted-foreground/50"
         placeholder="Markdown Code hier eingeben..."
-      ></textarea>
+        [value]="active.markdown"
+        (input)="onContentChange(active.id, $any($event.target).value)"
+      >
+      ></textarea
+      >
     </div>
   }
 </section>

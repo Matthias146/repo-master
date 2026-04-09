@@ -40,15 +40,19 @@ export class WorkspaceService {
   activeBlockId = signal<string | null>(null);
 
   constructor() {
-    effect(() => {
-      const session = this.supabase.session();
+    effect(
+      () => {
+        const session = this.supabase.session();
 
-      if (session) {
-        this.loadCustomBlocksFromCloud(session.user.id);
-      } else {
-        this.availableBlocks.set([...DEFAULT_BLOCKS]);
-      }
-    });
+        if (!session) {
+          this.availableBlocks.set([...DEFAULT_BLOCKS]);
+          this.selectedBlocks.set([]);
+        } else {
+          this.loadCustomBlocksFromCloud(session.user.id);
+        }
+      },
+      { allowSignalWrites: true },
+    );
   }
 
   private async loadCustomBlocksFromCloud(userId: string) {
@@ -71,6 +75,23 @@ export class WorkspaceService {
       }));
 
       this.availableBlocks.set([...DEFAULT_BLOCKS, ...cloudBlocks]);
+    }
+  }
+
+  async updateBlockMarkdown(id: string, newMarkdown: string) {
+    this.selectedBlocks.update((blocks) =>
+      blocks.map((b) => (b.id === id ? { ...b, markdown: newMarkdown } : b)),
+    );
+
+    const session = this.supabase.session();
+    if (session) {
+      const { error } = await this.supabase.client
+        .from('custom_blocks')
+        .update({ markdown: newMarkdown })
+        .eq('id', id)
+        .eq('user_id', session.user.id);
+
+      if (error) console.error('Update fehlgeschlagen:', error);
     }
   }
 
